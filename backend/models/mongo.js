@@ -12,7 +12,7 @@ connect(url)
 const newSchema = new Schema({
   title: {
     type: String,
-    require: true,
+    required: true,
   },
   date: Date,
   like: Boolean,

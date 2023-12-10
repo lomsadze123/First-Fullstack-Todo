@@ -1,6 +1,8 @@
 import express from "express";
-const router = express.Router();
 import Book from "../models/mongo.js";
+import handleErrorResponse from "../utils/middleware.js";
+const router = express.Router();
+const app = express();
 
 router.get("/", (request, response) => {
   Book.find({})
@@ -24,7 +26,7 @@ router.get("/:id", (request, response) => {
     });
 });
 
-router.post("/", (request, response) => {
+router.post("/", async (request, response, next) => {
   if (request.body.content) {
     const book = new Book({
       title: request.body.content,
@@ -32,15 +34,15 @@ router.post("/", (request, response) => {
       like: false,
     });
 
-    book
-      .save()
-      .then(() => {
-        console.log("book saved");
-      })
-      .catch((error) => {
-        console.log(error);
-        response.status(500).send("internal Server Error");
-      });
+    try {
+      await book.save();
+      console.log("book saved");
+      response.status(201).send(book);
+    } catch (error) {
+      console.log(error);
+      response.status(500).send("internal Server Error");
+      next(error);
+    }
   } else {
     response
       .status(400)
@@ -48,7 +50,7 @@ router.post("/", (request, response) => {
   }
 });
 
-router.put("/:id", async (request, response) => {
+router.put("/:id", async (request, response, next) => {
   try {
     const updated = await Book.findByIdAndUpdate(
       request.params.id,
@@ -60,7 +62,23 @@ router.put("/:id", async (request, response) => {
     response.send(updated);
   } catch (error) {
     response.status(500).send(error);
+    next(error);
   }
 });
+
+router.delete("/:id", async (request, response, next) => {
+  try {
+    const deleted = await Book.findByIdAndDelete(request.params.id);
+    if (deleted) {
+      console.log("Book deleted");
+      response.status(200).send("Book deleted successfully");
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+app.use(handleErrorResponse);
 
 export default router;

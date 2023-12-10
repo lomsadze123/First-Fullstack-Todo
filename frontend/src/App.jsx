@@ -8,15 +8,16 @@ const App = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (value) {
-      setData((prevData) => [...prevData, { title: value, like: false }]);
-      setValue("");
-    }
-    try {
-      await axios.post("http://localhost:3001/api/books", {
-        content: value,
-      });
-    } catch (error) {
-      console.log(error);
+      try {
+        const response = await axios.post("http://localhost:3001/api/books", {
+          content: value,
+        });
+
+        response.data.id && setData((prevData) => [...prevData, response.data]);
+        setValue("");
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -36,12 +37,22 @@ const App = () => {
     }
   };
 
+  const handleRemove = async (index, id) => {
+    const filter = data.filter((_, itemIndex) => itemIndex !== index);
+    setData(filter);
+
+    try {
+      await axios.delete(`http://localhost:3001/api/books/${id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:3001/api/books");
         setData(response.data);
-        console.log(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -73,7 +84,10 @@ const App = () => {
                 >
                   <b>Like</b> {book.like.toString()}
                 </button>
-                <button className="bg-blue-500 py-1 px-2 rounded ml-2">
+                <button
+                  onClick={() => handleRemove(index, book.id)}
+                  className="bg-blue-500 py-1 px-2 rounded ml-2"
+                >
                   Delete
                 </button>
               </div>
