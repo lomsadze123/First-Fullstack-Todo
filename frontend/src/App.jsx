@@ -75,7 +75,7 @@ const App = () => {
       <ul>
         {data &&
           data.map((book, index) => (
-            <div key={index} className="mb-4 flex justify-between">
+            <div key={book.id} className="mb-4 flex justify-between">
               <li className="text-lg font-medium">{book.title}</li>
               <div>
                 <button

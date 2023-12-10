@@ -8,14 +8,30 @@ set("strict", true);
 connect(url)
   .then((i) => console.log("connection successful"))
   .catch((err) => console.log("connection failed"));
+// additional comments
+connection.on("error", (error) => {
+  console.error("MongoDB connection error:", error);
+});
+connection.once("connected", () => {
+  console.log("Connected to MongoDB");
+});
+connection.on("disconnected", () => {
+  console.log("Disconnected from MongoDB");
+});
 
 const newSchema = new Schema({
   title: {
     type: String,
     required: true,
   },
-  date: Date,
-  like: Boolean,
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  like: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 newSchema.set("toJSON", {

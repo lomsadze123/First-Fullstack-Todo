@@ -2,7 +2,6 @@ import express from "express";
 import Book from "../models/mongo.js";
 import handleErrorResponse from "../utils/middleware.js";
 const router = express.Router();
-const app = express();
 
 router.get("/", (request, response) => {
   Book.find({})
@@ -71,7 +70,7 @@ router.delete("/:id", async (request, response, next) => {
     const deleted = await Book.findByIdAndDelete(request.params.id);
     if (deleted) {
       console.log("Book deleted");
-      response.status(200).send("Book deleted successfully");
+      response.status(204).send("Book deleted successfully");
     }
   } catch (error) {
     console.log(error);
@@ -79,6 +78,6 @@ router.delete("/:id", async (request, response, next) => {
   }
 });
 
-app.use(handleErrorResponse);
+router.use(handleErrorResponse);
 
 export default router;
